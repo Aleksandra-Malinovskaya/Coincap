@@ -10,3 +10,7 @@ const api = axios.create({
 export const getAssets = () => {
   return api.get().then((res) => res.data);
 };
+
+export const getAssetById = (id) => {
+  return api.get("", { params: { ids: id } }).then((res) => res.data);
+};

@@ -15,10 +15,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { useQuery } from "@tanstack/react-query";
 import { getAssets } from "../../api";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TablePage = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
+  const navigate = useNavigate();
 
   const {
     data: response,
@@ -33,7 +35,7 @@ const TablePage = () => {
   const startIndex = (page - 1) * itemsPerPage;
   const paginatedData = assetsMas?.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleChangePage = (event, value) => {
+  const handleChangePage = (value) => {
     setPage(value);
   };
   const formatNum = (val, decimals = 2) => {
@@ -65,7 +67,12 @@ const TablePage = () => {
           </TableHead>
           <TableBody>
             {paginatedData.map((asset) => (
-              <TableRow key={asset.id} hover>
+              <TableRow
+                key={asset.id}
+                hover
+                onClick={() => navigate(`/coin/${asset.id}`)}
+                sx={{ cursor: "pointer" }}
+              >
                 <TableCell>{asset.rank}</TableCell>
                 <TableCell>{asset.symbol}</TableCell>
                 <TableCell>{asset.id}</TableCell>
@@ -92,9 +99,10 @@ const TablePage = () => {
                 <TableCell align="center">
                   <IconButton
                     color="primary"
-                    onClick={() =>
-                      console.log("Открыть модалку для:", asset.id)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Открыть модалку для:", asset.id);
+                    }}
                   >
                     <AddIcon />
                   </IconButton>
