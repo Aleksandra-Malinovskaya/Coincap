@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getAssetById } from "../api";
+import { getAssetById, getAssetHistory } from "../api";
 import {
   Box,
   CircularProgress,
@@ -11,24 +11,48 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  Paper,
   Container,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useMemo } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const InfoCoinPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { start, end } = useMemo(() => {
+    const now = Date.now();
+    return {
+      end: now,
+      start: now - 10 * 60 * 60 * 1000,
+    };
+  }, [id]);
 
-  const {
-    data: response,
-    isPending,
-    error,
-  } = useQuery({
+  const { data: response } = useQuery({
     queryKey: ["asset", id],
     queryFn: () => getAssetById(id),
     staleTime: 60000,
   });
+
+  const {
+    data: history,
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["assetHistory", id, "h2", start, end],
+    queryFn: () => getAssetHistory(id, "h2", start, end),
+    staleTime: 60000,
+  });
+  const historyData = history?.data;
+  console.log(historyData);
   const asset = response?.data[0];
   const formatNum = (val, dec = 2) =>
     parseFloat(val).toLocaleString(undefined, {
@@ -65,7 +89,7 @@ const InfoCoinPage = () => {
             variant="h3"
             sx={{ color: "#2196f3", fontWeight: "bold" }}
           >
-            {asset.symbol}
+            {asset?.symbol}
           </Typography>
         </Box>
         <Typography variant="h3" sx={{ color: "#2196f3" }}>
@@ -157,17 +181,67 @@ const InfoCoinPage = () => {
 
       <Box
         sx={{
-          height: 200,
+          width: "100%",
+          height: 300,
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
-          border: "1px dashed #ccc",
-          mb: 4,
+          my: 4,
         }}
       >
-        <Typography color="text.secondary">
-          График истории (используйте библиотеку для визуализации)
-        </Typography>
+        <Box
+          sx={{
+            width: "40%",
+            height: 300,
+            bgcolor: "#fff",
+            p: 2,
+            borderRadius: 2,
+          }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={historyData}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#eee"
+              />
+              <XAxis
+                dataKey="time"
+                type="number"
+                domain={["dataMin", "dataMax"]}
+                tickFormatter={(unixTime) =>
+                  new Date(unixTime).toLocaleString("ru-RU", {
+                    hour: "2-digit",
+                  })
+                }
+                minTickGap={30}
+                style={{ fontSize: "12px" }}
+              />
+              <YAxis
+                dataKey="priceUsd"
+                orientation="left"
+                domain={["auto", "auto"]}
+                tickFormatter={(value) =>
+                  `$${parseFloat(value).toLocaleString()}`
+                }
+                style={{ fontSize: "12px" }}
+              />
+              <Tooltip
+                labelFormatter={(value) => new Date(value).toLocaleTimeString()}
+                formatter={(value) => [
+                  `$${parseFloat(value).toFixed(2)}`,
+                  "Цена",
+                ]}
+              />
+              <Line
+                type="monotone"
+                dataKey="priceUsd"
+                stroke="#2196f3"
+                strokeWidth={3}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </Box>
       </Box>
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>

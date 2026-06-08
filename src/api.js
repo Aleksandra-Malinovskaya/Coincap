@@ -14,3 +14,8 @@ export const getAssets = () => {
 export const getAssetById = (id) => {
   return api.get("", { params: { ids: id } }).then((res) => res.data);
 };
+export const getAssetHistory = (id, interval, start, end) => {
+  return api
+    .get(`${id}/history`, { params: { interval, start, end } })
+    .then((res) => res.data);
+};
