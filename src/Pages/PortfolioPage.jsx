@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,11 +12,24 @@ import {
   Box,
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
-const PortfolioPage = ({ open, handleClose, portfolioData }) => {
-  const saved = localStorage.getItem("user_portfolio")
-    ? JSON.parse(localStorage.getItem("user_portfolio"))
-    : [];
-  const savedd = [{ name: "bit", cost: 100, count: 1, result: 111 }];
+
+const PortfolioPage = ({ open, handleClose }) => {
+  const [portfolio, setPortfolio] = useState([]);
+
+  useEffect(() => {
+    if (open) {
+      const saved = localStorage.getItem("user_portfolio");
+      setPortfolio(saved ? JSON.parse(saved) : []);
+    }
+  }, [open]);
+  const totalSum = portfolio.reduce((acc, item) => acc + (item.result || 0), 0);
+
+  const removeAsset = (id) => {
+    const updated = portfolio.filter((item) => item.id !== id);
+    setPortfolio(updated);
+    localStorage.setItem("user_portfolio", JSON.stringify(updated));
+  };
+
   const style = {
     position: "absolute",
     top: "50%",
@@ -72,21 +85,17 @@ const PortfolioPage = ({ open, handleClose, portfolioData }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {savedd.map((save) => (
+                {portfolio.map((save) => (
                   <TableRow
-                    key={save.name}
+                    key={save.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell align="right">{save.name}</TableCell>
+                    <TableCell align="right">{save.id}</TableCell>
                     <TableCell align="right">{save.cost}</TableCell>
                     <TableCell align="right">{save.count}</TableCell>
                     <TableCell align="right">{save.result} $</TableCell>
                     <TableCell align="right">
-                      <IconButton
-                        onClick={() =>
-                          console.log("Удалить из портфеля:", save.id)
-                        }
-                      >
+                      <IconButton onClick={() => removeAsset(save.id)}>
                         <CancelIcon />
                       </IconButton>
                     </TableCell>
@@ -95,7 +104,7 @@ const PortfolioPage = ({ open, handleClose, portfolioData }) => {
               </TableBody>
             </Table>
           </TableContainer>
-          <h3 align="center">Итого:</h3>
+          <h3 align="center">Итого: {totalSum.toFixed(2)}</h3>
         </Box>
       </Modal>
     </>

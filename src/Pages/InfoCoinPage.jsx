@@ -14,7 +14,7 @@ import {
   Container,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   LineChart,
   Line,
@@ -24,9 +24,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { addAssetinPortfolio } from "../addAssentInPortfolio";
 
 const InfoCoinPage = () => {
   const navigate = useNavigate();
+  const [count, setCount] = useState("");
   const { id } = useParams();
   const { start, end } = useMemo(() => {
     const now = Date.now();
@@ -52,13 +54,14 @@ const InfoCoinPage = () => {
     staleTime: 60000,
   });
   const historyData = history?.data;
-  console.log(historyData);
+
   const asset = response?.data[0];
   const formatNum = (val, dec = 2) =>
     parseFloat(val).toLocaleString(undefined, {
       minimumFractionDigits: dec,
       maximumFractionDigits: dec,
     });
+
   if (isPending)
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 5 }}>
@@ -93,7 +96,7 @@ const InfoCoinPage = () => {
           </Typography>
         </Box>
         <Typography variant="h3" sx={{ color: "#2196f3" }}>
-          {asset.name}
+          {asset.id}
         </Typography>
       </Box>
 
@@ -112,12 +115,23 @@ const InfoCoinPage = () => {
       >
         <Typography variant="h6">Введите количество:</Typography>
         <TextField
+          value={count}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === "" || /^\d*\.?\d*$/.test(value)) {
+              setCount(value);
+            }
+          }}
           variant="outlined"
           size="small"
           sx={{ bgcolor: "white", width: 200 }}
         />
         <Button
           variant="contained"
+          onClick={() => {
+            addAssetinPortfolio(asset, count);
+            setCount("");
+          }}
           sx={{
             bgcolor: "#e0e0e0",
             color: "black",
@@ -195,10 +209,12 @@ const InfoCoinPage = () => {
             bgcolor: "#fff",
             p: 2,
             borderRadius: 2,
+            minWidth: 0,
+            position: "relative",
           }}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={historyData}>
+            <LineChart data={historyData || []}>
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}

@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAssets } from "../../api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { addAssetinPortfolio } from "../../addAssentInPortfolio";
 
 const TablePage = () => {
   const [page, setPage] = useState(1);
@@ -35,7 +36,7 @@ const TablePage = () => {
   const startIndex = (page - 1) * itemsPerPage;
   const paginatedData = assetsMas?.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleChangePage = (value) => {
+  const handleChangePage = (event, value) => {
     setPage(value);
   };
   const formatNum = (val, decimals = 2) => {
@@ -101,7 +102,7 @@ const TablePage = () => {
                     color="primary"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log("Открыть модалку для:", asset.id);
+                      addAssetinPortfolio(asset);
                     }}
                   >
                     <AddIcon />

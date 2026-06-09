@@ -8,7 +8,6 @@ import {
   IconButton,
 } from "@mui/material";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useQuery } from "@tanstack/react-query";
 import { getAssets } from "../../api";
 import { PortfolioPage } from "../PortfolioPage";
@@ -26,10 +25,8 @@ const Header = () => {
   const allAssets = response?.data || [];
   const top3 = allAssets.slice(0, 3);
 
-  const [portfolio, setPortfolio] = useState(() => {
-    const saved = localStorage.getItem("user_portfolio");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const saved = localStorage.getItem("user_portfolio");
+  let portfolio = saved ? JSON.parse(saved) : [];
 
   const { currentTotal, diff, diffPercent } = useMemo(() => {
     let currentTotal = 0;
@@ -39,8 +36,8 @@ const Header = () => {
       const currentAsset = allAssets.find((a) => a.id === item.id);
       if (currentAsset) {
         const currentPrice = parseFloat(currentAsset.priceUsd);
-        currentTotal += item.amount * currentPrice;
-        initialTotal += item.amount * item.purchasePrice;
+        currentTotal += parseFloat(item.count) * currentPrice;
+        initialTotal += parseFloat(item.count) * parseFloat(item.cost);
       }
     });
 
@@ -49,12 +46,6 @@ const Header = () => {
 
     return { currentTotal, diff, diffPercent };
   }, [portfolio, allAssets]);
-
-  const removeAsset = (id) => {
-    const updated = portfolio.filter((item) => item.id !== id);
-    setPortfolio(updated);
-    localStorage.setItem("user_portfolio", JSON.stringify(updated));
-  };
 
   return (
     <>
