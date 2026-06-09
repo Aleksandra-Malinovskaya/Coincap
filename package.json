@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Aleksandra-Malinovskaya.github.io/Coincap/",
+  "homepage": "https://Aleksandra-Malinovskaya.github.io/CoinСap/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
