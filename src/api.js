@@ -1,9 +1,11 @@
 import axios from "axios";
 const SEARCH_LINK = import.meta.env.VITE_COINCAP_SEARCH_LINK;
+const API_KEY = import.meta.env.VITE_COINCAP_API_KEY;
 const api = axios.create({
   baseURL: SEARCH_LINK,
   headers: {
     accept: "application/json",
+    Authorization: `Bearer ${API_KEY}`,
   },
 });
 
