@@ -1,30 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getAssetById, getAssetHistory } from "../api";
+import { getAssetById, getAssetHistory } from "../api/api";
 import {
   Box,
   CircularProgress,
   Typography,
   TextField,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
   Container,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useMemo, useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { addAssetinPortfolio } from "../addAssentInPortfolio";
+import { addAssetinPortfolio } from "../helpers/addAssentInPortfolio";
+import { TableInfoCoin } from "../components/TableInfoCoin";
+import { CoinGraph } from "../components/CoinGraph";
 
 const InfoCoinPage = () => {
   const navigate = useNavigate();
@@ -56,11 +45,6 @@ const InfoCoinPage = () => {
   const historyData = history?.data;
 
   const asset = response?.data[0];
-  const formatNum = (val, dec = 2) =>
-    parseFloat(val).toLocaleString(undefined, {
-      minimumFractionDigits: dec,
-      maximumFractionDigits: dec,
-    });
 
   if (isPending)
     return (
@@ -142,123 +126,9 @@ const InfoCoinPage = () => {
         </Button>
       </Box>
 
-      <Table sx={{ mb: 4 }}>
-        <TableBody>
-          <TableRow sx={{ bgcolor: "#fafafa" }}>
-            <TableCell sx={{ fontWeight: "bold" }}>Информация</TableCell>
-            <TableCell align="right" sx={{ fontWeight: "bold" }}>
-              Данные о валюте
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Цена</TableCell>
-            <TableCell align="right">{formatNum(asset.priceUsd)} $</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Доступное предложение для торговли</TableCell>
-            <TableCell align="right">
-              {formatNum(asset.supply / 1000000, 1)} млн
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Общее кол-во выпущенных активов</TableCell>
-            <TableCell align="right">
-              {formatNum(asset.maxSupply / 1000000, 1)} млн
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Объем торгов за последние 24 часа</TableCell>
-            <TableCell align="right">
-              {formatNum(asset.volumeUsd24Hr / 1000000000, 1)} млрд
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              Процентное изменения цены за последние 24 часа
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{
-                color:
-                  asset.changePercent24Hr < 0 ? "error.main" : "success.main",
-              }}
-            >
-              {formatNum(asset.changePercent24Hr)} %
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Сайт</TableCell>
-            <TableCell align="right">{asset.explorer}</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <TableInfoCoin asset={asset} />
 
-      <Box
-        sx={{
-          width: "100%",
-          height: 300,
-          display: "flex",
-          justifyContent: "center",
-          my: 4,
-        }}
-      >
-        <Box
-          sx={{
-            width: "40%",
-            height: 300,
-            bgcolor: "#fff",
-            p: 2,
-            borderRadius: 2,
-            minWidth: 0,
-            position: "relative",
-          }}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={historyData || []}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                stroke="#eee"
-              />
-              <XAxis
-                dataKey="time"
-                type="number"
-                domain={["dataMin", "dataMax"]}
-                tickFormatter={(unixTime) =>
-                  new Date(unixTime).toLocaleString("ru-RU", {
-                    hour: "2-digit",
-                  })
-                }
-                minTickGap={30}
-                style={{ fontSize: "12px" }}
-              />
-              <YAxis
-                dataKey="priceUsd"
-                orientation="left"
-                domain={["auto", "auto"]}
-                tickFormatter={(value) =>
-                  `$${parseFloat(value).toLocaleString()}`
-                }
-                style={{ fontSize: "12px" }}
-              />
-              <Tooltip
-                labelFormatter={(value) => new Date(value).toLocaleTimeString()}
-                formatter={(value) => [
-                  `$${parseFloat(value).toFixed(2)}`,
-                  "Цена",
-                ]}
-              />
-              <Line
-                type="monotone"
-                dataKey="priceUsd"
-                stroke="#2196f3"
-                strokeWidth={3}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </Box>
-      </Box>
+      <CoinGraph historyData={historyData} />
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Button

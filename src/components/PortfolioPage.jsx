@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { queryClient } from "../main";
 
 const PortfolioPage = ({ open, handleClose }) => {
   const [portfolio, setPortfolio] = useState([]);
@@ -28,6 +29,7 @@ const PortfolioPage = ({ open, handleClose }) => {
     const updated = portfolio.filter((item) => item.id !== id);
     setPortfolio(updated);
     localStorage.setItem("user_portfolio", JSON.stringify(updated));
+    queryClient.invalidateQueries();
   };
 
   const style = {

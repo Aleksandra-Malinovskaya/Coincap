@@ -1,6 +1,6 @@
 import "./App.css";
-import { TablePage } from "./Pages/MainPage/TablePage";
-import { Header } from "./Pages/MainPage/Header";
+import { TablePage } from "./Pages/TablePage";
+import { Header } from "./Pages/Header";
 import { Routes, Route, Navigate } from "react-router";
 import { InfoCoinPage } from "./Pages/InfoCoinPage";
 

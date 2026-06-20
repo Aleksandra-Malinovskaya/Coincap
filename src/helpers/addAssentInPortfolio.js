@@ -1,3 +1,4 @@
+import { queryClient } from "../main";
 export const addAssetinPortfolio = (asset, count = 1) => {
   const savedData = localStorage.getItem("user_portfolio");
   const saved = savedData ? JSON.parse(savedData) : [];
@@ -28,4 +29,5 @@ export const addAssetinPortfolio = (asset, count = 1) => {
   }
 
   localStorage.setItem("user_portfolio", JSON.stringify(newPortfolio));
+  queryClient.invalidateQueries();
 };
